@@ -1,13 +1,32 @@
-import React from "react";
-import { useSearchParams } from "react-router-dom";
-// 경로 뒤에 ?네임=값&네임=값 으로 페이지에 값을 전달하는 방법
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { DiaryStateContext } from "../App";
+import DiaryEditor from "../components/DiaryEditor";
 
 const Edit = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const id = searchParams.get("id");
-  const mode = searchParams.get("mode");
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const diaryList = useContext(DiaryStateContext);
+  const [originData, setOriginData] = useState();
 
-  return <div>Edit</div>;
+  useEffect(() => {
+    if (diaryList.length >= 1) {
+      const targetDiary = diaryList.find(
+        (it) => parseInt(it.id) === parseInt(id)
+      );
+      if (targetDiary) {
+        setOriginData(targetDiary);
+      } else {
+        navigate("/", { replace: true });
+        // 존재하지 않는 일기는 홈으로 보내고, 뒤로가기 막음.
+      }
+    }
+  }, [id, diaryList]);
+  return (
+    <div>
+      {originData && <DiaryEditor isEdit={true} originData={originData} />}
+    </div>
+  );
 };
 
 export default Edit;
